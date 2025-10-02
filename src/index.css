@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* App-level helpers */
+.backdrop-blur-soft {
+  backdrop-filter: blur(6px);
+}
+
+/* Leaflet tweaks for dark theme */
+.leaflet-container {
+  background: #0a0f1f;
+}
+.leaflet-control-container .leaflet-control {
+  background-color: rgba(10, 15, 31, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+}
+.leaflet-popup-content-wrapper {
+  background: #0f1a33;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.12);
+}
