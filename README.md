@@ -7,6 +7,8 @@
 ![React](https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react)
 ![Vite](https://img.shields.io/badge/Vite-5.4.8-646CFF?logo=vite)
 
+**🌐 [Live Demo](https://nasa-space-challenge-2025.vercel.app)** | **📚 [Documentation](docs/)** | **🚀 [Deployment Guide](DEPLOYMENT_GUIDE.md)**
+
 ---
 
 ## 🎯 Overview
@@ -59,7 +61,26 @@ npm run dev
 # Open browser to http://localhost:5173
 ```
 
-### Environment Setup
+### 🌐 Deploy to Production
+
+Deploy your own instance to Vercel (recommended):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/niloy200119/Nasa_SpaceChallenge_2025)
+
+**Or use the quick deploy script:**
+```bash
+# Install Vercel CLI and deploy
+npm install -g vercel
+./deploy.sh
+```
+
+**📖 Full deployment instructions:** [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)
+
+**🔐 Remember to add environment variables on Vercel:**
+- `VITE_OPENWEATHER_API_KEY`
+- `VITE_NASA_API_KEY`
+
+---### Environment Setup
 
 Create a `.env` file in the project root (copy from `.env.example`):
 
