@@ -132,66 +132,128 @@ export async function calculateResilienceScore({
  * Calculate weather resilience score
  */
 function calculateWeatherResilience(weather) {
-  if (!weather) return 70 // Neutral score if no data
+  if (!weather) return 65 // Lower neutral score to differentiate from good conditions
 
-  let score = 100
+  let score = 90 // Start at 90 instead of 100 to allow for perfect conditions bonus
 
-  // Temperature extremes
-  if (weather.temp > 38) score -= 20 // Extreme heat
-  else if (weather.temp > 35) score -= 10
-  else if (weather.temp < 0) score -= 15 // Freezing
-  else if (weather.temp < 5) score -= 8
+  // Temperature extremes (more granular)
+  const temp = weather.temp || weather.tempMax || 20
+  if (temp > 42) score -= 30 // Deadly heat
+  else if (temp > 38) score -= 22 // Extreme heat
+  else if (temp > 35) score -= 15
+  else if (temp > 32) score -= 10
+  else if (temp > 30) score -= 5
+  else if (temp >= 15 && temp <= 25) score += 10 // Ideal temperature bonus
+  
+  if (temp < -10) score -= 25 // Dangerous cold
+  else if (temp < 0) score -= 18 // Freezing
+  else if (temp < 5) score -= 12
+  else if (temp < 10) score -= 6
 
-  // Wind speed
-  if (weather.windSpeed > 80) score -= 25 // Hurricane force
-  else if (weather.windSpeed > 60) score -= 15 // Storm force
-  else if (weather.windSpeed > 40) score -= 8
+  // Wind speed (km/h)
+  const windSpeed = weather.windSpeed || 0
+  if (windSpeed > 100) score -= 30 // Hurricane force
+  else if (windSpeed > 80) score -= 25
+  else if (windSpeed > 60) score -= 18 // Storm force
+  else if (windSpeed > 40) score -= 12
+  else if (windSpeed > 30) score -= 6
 
-  // Precipitation/humidity
-  if (weather.humidity > 90 && weather.temp > 30) score -= 10 // Oppressive
-  if (weather.pressure < 980) score -= 10 // Low pressure system
+  // Precipitation/humidity (more detailed)
+  const humidity = weather.humidity || 50
+  if (humidity > 95) score -= 12
+  else if (humidity > 85 && temp > 28) score -= 15 // Oppressive combination
+  else if (humidity > 80 && temp > 30) score -= 10
+  else if (humidity < 20) score -= 8 // Too dry
+
+  // Atmospheric pressure
+  const pressure = weather.pressure || 1013
+  if (pressure < 960) score -= 20 // Very low pressure (severe storm)
+  else if (pressure < 980) score -= 12 // Low pressure system
+  else if (pressure < 1000) score -= 5
 
   // Weather conditions
-  const severeConditions = ['Thunderstorm', 'Tornado', 'Hurricane', 'Hail', 'Snow', 'Blizzard']
+  const severeConditions = ['Thunderstorm', 'Tornado', 'Hurricane', 'Hail', 'Blizzard']
+  const moderateConditions = ['Snow', 'Rain', 'Drizzle', 'Sleet']
+  const minorConditions = ['Clouds', 'Fog', 'Mist', 'Haze']
+  
   if (severeConditions.some(cond => weather.conditions?.includes(cond))) {
-    score -= 15
+    score -= 25
+  } else if (moderateConditions.some(cond => weather.conditions?.includes(cond))) {
+    score -= 8
+  } else if (minorConditions.some(cond => weather.conditions?.includes(cond))) {
+    score -= 3
+  } else if (weather.conditions === 'Clear') {
+    score += 5 // Bonus for clear conditions
   }
 
-  return Math.max(0, Math.min(100, score))
+  // Visibility
+  if (weather.visibility !== null && weather.visibility !== undefined) {
+    if (weather.visibility < 1) score -= 15 // Very poor visibility
+    else if (weather.visibility < 3) score -= 10
+    else if (weather.visibility < 5) score -= 5
+  }
+
+  return Math.max(20, Math.min(100, score))
 }
 
 /**
  * Calculate disaster resilience score
  */
 function calculateDisasterResilience(disasters, location) {
-  if (!disasters || disasters.length === 0) return 95 // High score if no disasters
+  // Different baseline based on disaster presence
+  if (!disasters || disasters.length === 0) return 88 // Good but not perfect - some areas are inherently riskier
 
-  let score = 90
+  let score = 85 // Start lower when disasters are present
   
   // Deduct points for each disaster based on severity and proximity
   const severityWeights = {
-    'Wildfires': 15,
-    'Severe Storms': 12,
-    'Floods': 18,
-    'Earthquakes': 20,
-    'Volcanoes': 25,
-    'Drought': 10,
-    'Landslides': 14,
-    'Sea and Lake Ice': 5,
-    'Snow': 8,
-    'Dust and Haze': 6,
-    'Manmade': 10,
-    'Temperature Extremes': 12
+    'Wildfires': 18,
+    'Severe Storms': 15,
+    'Floods': 20,
+    'Earthquakes': 22,
+    'Volcanoes': 28,
+    'Drought': 12,
+    'Landslides': 16,
+    'Sea and Lake Ice': 6,
+    'Snow': 10,
+    'Dust and Haze': 8,
+    'Manmade': 14,
+    'Temperature Extremes': 15
   }
+
+  // Count disasters by severity
+  let criticalCount = 0
+  let totalDeduction = 0
 
   disasters.forEach(disaster => {
     const category = disaster.categories?.[0]?.title || 'Unknown'
-    const deduction = severityWeights[category] || 10
-    score -= deduction
+    const deduction = severityWeights[category] || 12
+    
+    // Extra penalty for critical disaster types
+    if (['Volcanoes', 'Earthquakes', 'Floods'].includes(category)) {
+      criticalCount++
+      totalDeduction += deduction * 1.2 // 20% increase for critical types
+    } else {
+      totalDeduction += deduction
+    }
   })
 
-  // Cap maximum deduction
-  return Math.max(20, Math.min(95, score))
+  // Multiple disasters compound the risk
+  if (disasters.length > 3) {
+    totalDeduction *= 1.3 // 30% increase for multiple disasters
+  } else if (disasters.length > 1) {
+    totalDeduction *= 1.15 // 15% increase for 2-3 disasters
+  }
+
+  score -= totalDeduction
+
+  // Bonus if no critical disasters
+  if (criticalCount === 0 && disasters.length > 0) {
+    score += 5
+  }
+
+  // Cap score range
+  return Math.max(15, Math.min(88, score))
 }
 
 /**
@@ -250,26 +312,58 @@ function calculateMobilityResilience(mobility) {
  * Calculate air quality resilience score
  */
 function calculateAirQualityResilience(airQuality) {
-  if (!airQuality) return 75
+  if (!airQuality) return 68 // Lower neutral score
 
-  let score = 100
+  let score = 95
 
-  // AQI-based scoring (WHO standards)
-  const aqi = airQuality.aqi || 50
+  // AQI-based scoring (WHO standards) - more granular
+  const aqi = airQuality.aqi || airQuality.main?.aqi || 3
   
-  if (aqi > 300) score -= 50 // Hazardous
-  else if (aqi > 200) score -= 40 // Very unhealthy
-  else if (aqi > 150) score -= 30 // Unhealthy
-  else if (aqi > 100) score -= 20 // Unhealthy for sensitive
-  else if (aqi > 50) score -= 10 // Moderate
+  // OpenWeatherMap uses 1-5 scale, convert to 0-500 scale if needed
+  let aqiValue = aqi
+  if (aqi <= 5) {
+    // Convert 1-5 scale to approximate AQI
+    const aqiMapping = { 1: 25, 2: 60, 3: 100, 4: 175, 5: 300 }
+    aqiValue = aqiMapping[aqi] || 100
+  }
+  
+  if (aqiValue > 300) score -= 55 // Hazardous
+  else if (aqiValue > 250) score -= 48
+  else if (aqiValue > 200) score -= 42 // Very unhealthy
+  else if (aqiValue > 150) score -= 32 // Unhealthy
+  else if (aqiValue > 100) score -= 22 // Unhealthy for sensitive
+  else if (aqiValue > 75) score -= 15
+  else if (aqiValue > 50) score -= 10 // Moderate
+  else if (aqiValue < 25) score += 5 // Bonus for excellent air
 
-  // PM2.5 (critical pollutant)
+  // PM2.5 (critical pollutant) - more detailed
   const pm25 = airQuality.components?.pm2_5 || airQuality.pm25 || 0
-  if (pm25 > 55) score -= 15
-  else if (pm25 > 35) score -= 10
-  else if (pm25 > 15) score -= 5
+  if (pm25 > 150) score -= 25 // Hazardous
+  else if (pm25 > 75) score -= 20
+  else if (pm25 > 55) score -= 16
+  else if (pm25 > 35) score -= 12
+  else if (pm25 > 15) score -= 7
+  else if (pm25 > 10) score -= 3
 
-  return Math.max(20, Math.min(100, score))
+  // PM10
+  const pm10 = airQuality.components?.pm10 || 0
+  if (pm10 > 250) score -= 15
+  else if (pm10 > 150) score -= 10
+  else if (pm10 > 100) score -= 6
+
+  // NO2 (nitrogen dioxide)
+  const no2 = airQuality.components?.no2 || 0
+  if (no2 > 200) score -= 12
+  else if (no2 > 100) score -= 7
+  else if (no2 > 50) score -= 3
+
+  // CO (carbon monoxide)
+  const co = airQuality.components?.co || 0
+  if (co > 15000) score -= 15
+  else if (co > 10000) score -= 10
+  else if (co > 5000) score -= 5
+
+  return Math.max(15, Math.min(100, score))
 }
 
 /**

@@ -3,14 +3,18 @@ import StarfieldCanvas from './components/Background/StarfieldCanvas.jsx'
 import CityParallax from './components/Background/CityParallax.jsx'
 import Header from './components/Header.jsx'
 import NasaMap from './components/Map/NasaMap.jsx'
+import MapInsights from './components/Map/MapInsights.jsx'
 import ClimatePanel from './components/Panels/ClimatePanel.jsx'
 import EventsPanel from './components/Panels/EventsPanel.jsx'
 import WaterFloodPanel from './components/Panels/WaterFloodPanel.jsx'
 import MobilityPanel from './components/Panels/MobilityPanel.jsx'
 import ResiliencePanel from './components/Panels/ResiliencePanel.jsx'
 import ScenarioBuilderPanel from './components/Panels/ScenarioBuilderPanel.jsx'
+import AICrisisPanel from './components/Panels/AICrisisPanel.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { debounce } from './lib/utils/debounce.js'
+import { fetchCurrentWeather, fetchAirPollution } from './lib/nasa/weather.js'
+import { fetchEonetEventsInBbox } from './lib/nasa/eonet.js'
 
 export default function App() {
   const [center, setCenter] = useState([5.6037, -0.1870]) // Accra default
@@ -24,6 +28,7 @@ export default function App() {
   const [showMobility, setShowMobility] = useState(false)
   const [showResilience, setShowResilience] = useState(true)
   const [showScenarios, setShowScenarios] = useState(false)
+  const [showAI, setShowAI] = useState(true)
   const [selectedLayers, setSelectedLayers] = useState({
     trueColor: true,
     firesNight: true,
@@ -54,14 +59,48 @@ export default function App() {
     if (name) setCityName(name)
   }, [])
 
+  // Fetch real-time data for resilience and AI analysis
+  useEffect(() => {
+    if (!center || center.length !== 2) return
+
+    const fetchData = async () => {
+      console.log('🌍 Fetching data for:', cityName, 'at', center)
+      try {
+        // Fetch weather
+        console.log('☁️ Fetching weather...')
+        const weather = await fetchCurrentWeather(center[0], center[1])
+        console.log('✅ Weather data:', weather)
+        setWeatherData(weather)
+
+        // Fetch air quality
+        console.log('💨 Fetching air quality...')
+        const airQuality = await fetchAirPollution(center[0], center[1])
+        console.log('✅ Air quality data:', airQuality)
+        setAirQualityData(airQuality)
+
+        // Fetch disasters if bbox available
+        if (bbox) {
+          console.log('🔥 Fetching disasters...')
+          const disasters = await fetchEonetEventsInBbox(bbox)
+          console.log('✅ Disasters found:', disasters?.length || 0)
+          setDisastersData(disasters)
+        }
+      } catch (error) {
+        console.error('❌ Error fetching real-time data:', error)
+      }
+    }
+
+    fetchData()
+  }, [center, bbox, cityName])
+
   return (
-    <div className="relative min-h-screen overflow-hidden">
+    <div className="relative min-h-screen">
       {/* Background NASA vibe */}
       <StarfieldCanvas />
       <CityParallax />
 
       {/* Foreground content */}
-      <div className="relative z-10">
+      <div className="relative z-10 min-h-screen flex flex-col">
         <Header
           dateISO={dateISO}
           onDateChange={setDateISO}
@@ -79,12 +118,16 @@ export default function App() {
           setShowResilience={setShowResilience}
           showScenarios={showScenarios}
           setShowScenarios={setShowScenarios}
+          showAI={showAI}
+          setShowAI={setShowAI}
         />
 
-        <main className="grid grid-cols-1 xl:grid-cols-3 gap-4 p-4">
-          <section className="xl:col-span-2">
-            <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft shadow-glow">
-              <div className="p-3 flex flex-wrap items-center gap-4 border-b border-white/10">
+        <main className="flex-1 p-4">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
+            {/* Map Section - Sticky on large screens */}
+            <section className="xl:col-span-2">
+              <div className="xl:sticky xl:top-20 rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft shadow-glow xl:h-[calc(100vh-6rem)] flex flex-col">
+                <div className="p-3 flex flex-wrap items-center gap-4 border-b border-white/10 flex-shrink-0">
                 <div className="text-sm text-white/80">NASA GIBS Layers</div>
                 <label className="flex items-center gap-2 text-sm">
                   <input type="checkbox" className="accent-nasa-blue" checked={selectedLayers.trueColor} onChange={e => setSelectedLayers(s => ({ ...s, trueColor: e.target.checked }))} />
@@ -100,7 +143,7 @@ export default function App() {
                 </label>
                 <div className="ml-auto text-xs text-white/60">Date affects daily layers</div>
               </div>
-              <div className="h-[68vh]">
+              <div className="flex-1 min-h-0">
                 <NasaMap
                   center={center}
                   zoom={zoom}
@@ -110,9 +153,34 @@ export default function App() {
                 />
               </div>
             </div>
+
+            {/* Interactive Map Insights - Below the map */}
+            <ErrorBoundary fallbackMessage="Map insights temporarily unavailable.">
+              <MapInsights
+                weather={weatherData}
+                cityName={cityName}
+                location={center}
+                disasters={disastersData}
+              />
+            </ErrorBoundary>
           </section>
 
-          <aside className="space-y-4">
+          {/* Sidebar */}
+          <aside className="space-y-4 xl:col-span-1">
+            {showAI && (
+              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow max-h-[90vh] overflow-y-auto">
+                <ErrorBoundary fallbackMessage="AI analysis temporarily unavailable.">
+                  <AICrisisPanel 
+                    disasters={disastersData}
+                    weather={weatherData}
+                    resilience={null}
+                    cityName={cityName}
+                    mobility={mobilityData}
+                    airQuality={airQualityData}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
             {showResilience && (
               <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
                 <ErrorBoundary fallbackMessage="Resilience score temporarily unavailable.">
@@ -185,6 +253,7 @@ export default function App() {
               </p>
             </div>
           </aside>
+          </div>
         </main>
       </div>
     </div>

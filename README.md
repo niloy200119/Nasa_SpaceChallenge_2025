@@ -1,6 +1,6 @@
-# 🌍 NASA Space Challenge 2025 - City Resilience Explorer
+# 🌍 MetroScape - AI-Powered City Resilience Platform
 
-> **An interactive web application for monitoring and simulating city resilience against climate disasters using real-time NASA and weather data.**
+> **An intelligent web application using AI and real-time NASA data to monitor city resilience, predict disasters, and provide crisis management recommendations.**
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
@@ -13,22 +13,27 @@
 
 ## 🎯 Overview
 
-The **City Resilience Explorer** is a comprehensive disaster monitoring and simulation platform that helps cities, emergency managers, and researchers:
+**MetroScape** is an AI-powered urban resilience platform that combines real-time NASA satellite data with Google Gemini AI to provide:
 
-- 🔍 **Monitor Real-Time Disasters** - Track wildfires, floods, earthquakes, storms, and more
-- 📊 **Assess City Resilience** - Get a 0-100 resilience score based on multiple factors
-- 🎮 **Simulate Disaster Scenarios** - Run "what-if" simulations for emergency preparedness
-- 🗺️ **Visualize Data on Interactive Maps** - See NASA satellite imagery and weather overlays
-- 🚨 **Create Flood Alerts** - Configure water/flood monitoring with HyFuse sensor data
+- 🤖 **AI Crisis Management** - Intelligent recommendations for emergency response using Gemini AI
+- 🔍 **Real-Time Disaster Monitoring** - Track wildfires, floods, earthquakes, storms live
+- 📊 **Dynamic Resilience Scoring** - City-specific 0-100 scores updated in real-time
+- 🎮 **Disaster Scenario Simulation** - Run "what-if" scenarios for preparedness
+- 🗺️ **NASA Satellite Visualization** - 8 live data layers from NASA GIBS
+- 🚨 **Smart Flood Alerts** - HyFuse sensor integration with AI analysis
 
-### 🏆 Features
+### 🏆 Key Features
 
-✅ **City-Specific Data** - Search any city worldwide, all data filters to that location  
-✅ **14 Toggleable Layers** - 8 map layers + 6 data panels with show/hide controls  
-✅ **Resilience Scoring** - Comprehensive 0-100 scoring with 6 components  
+### 🏆 Key Features
+
+🤖 **AI-Powered Crisis Management** - Google Gemini AI analyzes real-time data and generates intelligent action plans  
+✅ **City-Specific Real-Time Data** - All metrics update dynamically based on actual conditions  
+✅ **14 Toggleable Layers** - 8 NASA satellite layers + 6 data panels  
+✅ **Dynamic Resilience Scoring** - 0-100 score calculated from live weather, disasters, air quality  
 ✅ **Disaster Scenarios** - 7 disaster types with unique simulation aspects  
-✅ **Real-Time Weather** - Live weather data with 5 overlay layers  
+✅ **Live Weather Integration** - OpenWeatherMap real-time data with 5 overlay layers  
 ✅ **NASA Satellite Data** - 7 integrated NASA APIs (GIBS, EONET, POWER, FIRMS, etc.)  
+✅ **Fixed Map Interface** - No scrolling gaps, smooth UX  
 
 ---
 

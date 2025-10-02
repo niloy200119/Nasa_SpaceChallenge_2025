@@ -13,7 +13,7 @@ const API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY || 'DEMO_KEY'
  * Precipitation radar overlay
  * Shows rain and snow in real-time
  */
-export function PrecipitationLayer({ opacity = 0.6 }) {
+export function PrecipitationLayer({ opacity = 0.75 }) {
   return (
     <TileLayer
       url={`https://tile.openweathermap.org/map/precipitation_new/{z}/{x}/{y}.png?appid=${API_KEY}`}
@@ -28,7 +28,7 @@ export function PrecipitationLayer({ opacity = 0.6 }) {
  * Temperature heatmap overlay
  * Shows temperature distribution across the map
  */
-export function TemperatureLayer({ opacity = 0.5 }) {
+export function TemperatureLayer({ opacity = 0.7 }) {
   return (
     <TileLayer
       url={`https://tile.openweathermap.org/map/temp_new/{z}/{x}/{y}.png?appid=${API_KEY}`}
@@ -43,7 +43,7 @@ export function TemperatureLayer({ opacity = 0.5 }) {
  * Cloud coverage overlay
  * Shows cloud cover percentage
  */
-export function CloudLayer({ opacity = 0.4 }) {
+export function CloudLayer({ opacity = 0.6 }) {
   return (
     <TileLayer
       url={`https://tile.openweathermap.org/map/clouds_new/{z}/{x}/{y}.png?appid=${API_KEY}`}
@@ -58,7 +58,7 @@ export function CloudLayer({ opacity = 0.4 }) {
  * Wind speed overlay
  * Shows wind speed distribution
  */
-export function WindLayer({ opacity = 0.5 }) {
+export function WindLayer({ opacity = 0.7 }) {
   return (
     <TileLayer
       url={`https://tile.openweathermap.org/map/wind_new/{z}/{x}/{y}.png?appid=${API_KEY}`}
@@ -73,7 +73,7 @@ export function WindLayer({ opacity = 0.5 }) {
  * Pressure overlay
  * Shows atmospheric pressure
  */
-export function PressureLayer({ opacity = 0.4 }) {
+export function PressureLayer({ opacity = 0.6 }) {
   return (
     <TileLayer
       url={`https://tile.openweathermap.org/map/pressure_new/{z}/{x}/{y}.png?appid=${API_KEY}`}
@@ -85,10 +85,12 @@ export function PressureLayer({ opacity = 0.4 }) {
 }
 
 /**
- * Weather layer controls component
+ * Weather layer controls component - Dropdown version
  * Toggle different weather layers on/off
  */
 export function WeatherLayerControls({ layers, onToggle }) {
+  const [isOpen, setIsOpen] = React.useState(false)
+  
   const layerOptions = [
     { id: 'precipitation', label: 'Precipitation', icon: '🌧️', component: PrecipitationLayer },
     { id: 'temperature', label: 'Temperature', icon: '🌡️', component: TemperatureLayer },
@@ -97,79 +99,116 @@ export function WeatherLayerControls({ layers, onToggle }) {
     { id: 'pressure', label: 'Pressure', icon: '🔽', component: PressureLayer }
   ]
 
+  const activeCount = Object.values(layers).filter(Boolean).length
+
   return (
     <div style={{
       position: 'absolute',
       top: '80px',
       right: '10px',
-      zIndex: 1000,
-      background: 'rgba(10, 14, 39, 0.95)',
-      padding: '12px',
-      borderRadius: '8px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      minWidth: '180px'
+      zIndex: 1000
     }}>
-      <div style={{
-        fontSize: '12px',
-        fontWeight: 'bold',
-        color: 'white',
-        marginBottom: '8px',
-        paddingBottom: '8px',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
-      }}>
-        🌤️ Weather Layers
-      </div>
-      
-      {layerOptions.map(layer => (
-        <label
-          key={layer.id}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            padding: '6px 8px',
-            marginBottom: '4px',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontSize: '12px',
-            color: 'white',
-            transition: 'background-color 0.2s',
-            backgroundColor: layers[layer.id] ? 'rgba(59, 130, 246, 0.3)' : 'transparent'
-          }}
-          onMouseEnter={(e) => {
-            if (!layers[layer.id]) {
-              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
-            }
-          }}
-          onMouseLeave={(e) => {
-            if (!layers[layer.id]) {
-              e.currentTarget.style.backgroundColor = 'transparent'
-            }
-          }}
-        >
-          <input
-            type="checkbox"
-            checked={layers[layer.id] || false}
-            onChange={() => onToggle(layer.id)}
-            style={{
-              marginRight: '8px',
-              cursor: 'pointer',
-              accentColor: '#3b82f6'
-            }}
-          />
-          <span>{layer.icon} {layer.label}</span>
-        </label>
-      ))}
+      {/* Dropdown Toggle Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          background: 'rgba(10, 14, 39, 0.95)',
+          border: '1px solid rgba(255, 255, 255, 0.2)',
+          color: 'white',
+          padding: '10px 16px',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '13px',
+          fontWeight: '500',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.2s',
+          width: '180px',
+          justifyContent: 'space-between'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = 'rgba(10, 14, 39, 0.98)'
+          e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = 'rgba(10, 14, 39, 0.95)'
+          e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+        }}
+      >
+        <span>🌤️ Weather Layers</span>
+        <span style={{ fontSize: '11px', opacity: 0.7 }}>
+          {activeCount > 0 ? `(${activeCount})` : ''} {isOpen ? '▲' : '▼'}
+        </span>
+      </button>
 
-      <div style={{
-        marginTop: '8px',
-        paddingTop: '8px',
-        borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-        fontSize: '10px',
-        color: 'rgba(255, 255, 255, 0.6)',
-        textAlign: 'center'
-      }}>
-        Real-time data from OpenWeatherMap
-      </div>
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div style={{
+          marginTop: '8px',
+          background: 'rgba(10, 14, 39, 0.98)',
+          border: '1px solid rgba(255, 255, 255, 0.15)',
+          borderRadius: '8px',
+          padding: '8px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+          animation: 'fadeIn 0.2s ease-out'
+        }}>
+          {layerOptions.map(layer => (
+            <label
+              key={layer.id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '8px 10px',
+                marginBottom: '4px',
+                cursor: 'pointer',
+                borderRadius: '6px',
+                fontSize: '12px',
+                color: 'white',
+                transition: 'all 0.2s',
+                backgroundColor: layers[layer.id] ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
+                border: layers[layer.id] ? '1px solid rgba(59, 130, 246, 0.4)' : '1px solid transparent'
+              }}
+              onMouseEnter={(e) => {
+                if (!layers[layer.id]) {
+                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.08)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!layers[layer.id]) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                }
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={layers[layer.id] || false}
+                onChange={() => onToggle(layer.id)}
+                style={{
+                  marginRight: '10px',
+                  cursor: 'pointer',
+                  accentColor: '#3b82f6',
+                  width: '16px',
+                  height: '16px'
+                }}
+              />
+              <span>{layer.icon} {layer.label}</span>
+            </label>
+          ))}
+
+          <div style={{
+            marginTop: '8px',
+            paddingTop: '8px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+            fontSize: '10px',
+            color: 'rgba(255, 255, 255, 0.5)',
+            textAlign: 'center'
+          }}>
+            Real-time OpenWeatherMap
+          </div>
+        </div>
+      )}
     </div>
   )
 }

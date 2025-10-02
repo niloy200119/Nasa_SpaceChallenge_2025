@@ -21,6 +21,13 @@ export default function ResiliencePanel({
       setLoading(true)
       setError(null)
       try {
+        console.log('🔄 Calculating resilience for:', cityName)
+        console.log('📊 Data:', { 
+          weather: weather ? 'Available' : 'NULL', 
+          disasters: disasters?.length || 0,
+          airQuality: airQuality ? 'Available' : 'NULL'
+        })
+        
         const score = await calculateResilienceScore({
           weather,
           disasters,
@@ -29,9 +36,11 @@ export default function ResiliencePanel({
           airQuality,
           location
         })
+        
+        console.log('✅ Resilience Score:', score.overallScore)
         setResilienceData(score)
       } catch (err) {
-        console.error('Failed to calculate resilience score:', err)
+        console.error('❌ Failed to calculate resilience score:', err)
         setError(err.message)
       } finally {
         setLoading(false)
@@ -39,7 +48,7 @@ export default function ResiliencePanel({
     }
 
     calculateScore()
-  }, [weather, disasters, climate, mobility, airQuality, location])
+  }, [weather, disasters, climate, mobility, airQuality, location, cityName])
 
   if (loading && !resilienceData) {
     return (
