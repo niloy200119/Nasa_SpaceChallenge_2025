@@ -11,6 +11,9 @@ import MobilityPanel from './components/Panels/MobilityPanel.jsx'
 import ResiliencePanel from './components/Panels/ResiliencePanel.jsx'
 import ScenarioBuilderPanel from './components/Panels/ScenarioBuilderPanel.jsx'
 import AICrisisPanel from './components/Panels/AICrisisPanel.jsx'
+import UrbanInfrastructurePanel from './components/Panels/UrbanInfrastructurePanel.jsx'
+import EnvironmentalHealthPanel from './components/Panels/EnvironmentalHealthPanel.jsx'
+import EnergyUtilitiesPanel from './components/Panels/EnergyUtilitiesPanel.jsx'
 import ErrorBoundary from './components/ErrorBoundary.jsx'
 import { debounce } from './lib/utils/debounce.js'
 import { fetchCurrentWeather, fetchAirPollution } from './lib/nasa/weather.js'
@@ -29,6 +32,9 @@ export default function App() {
   const [showResilience, setShowResilience] = useState(true)
   const [showScenarios, setShowScenarios] = useState(false)
   const [showAI, setShowAI] = useState(true)
+  const [showInfrastructure, setShowInfrastructure] = useState(false)
+  const [showEnvironment, setShowEnvironment] = useState(false)
+  const [showEnergy, setShowEnergy] = useState(false)
   const [selectedLayers, setSelectedLayers] = useState({
     trueColor: true,
     firesNight: true,
@@ -120,55 +126,70 @@ export default function App() {
           setShowScenarios={setShowScenarios}
           showAI={showAI}
           setShowAI={setShowAI}
+          showInfrastructure={showInfrastructure}
+          setShowInfrastructure={setShowInfrastructure}
+          showEnvironment={showEnvironment}
+          setShowEnvironment={setShowEnvironment}
+          showEnergy={showEnergy}
+          setShowEnergy={setShowEnergy}
         />
 
-        <main className="flex-1 p-4">
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
-            {/* Map Section - Sticky on large screens */}
-            <section className="xl:col-span-2">
-              <div className="xl:sticky xl:top-20 rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft shadow-glow xl:h-[calc(100vh-6rem)] flex flex-col">
-                <div className="p-3 flex flex-wrap items-center gap-4 border-b border-white/10 flex-shrink-0">
-                <div className="text-sm text-white/80">NASA GIBS Layers</div>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="accent-nasa-blue" checked={selectedLayers.trueColor} onChange={e => setSelectedLayers(s => ({ ...s, trueColor: e.target.checked }))} />
-                  True Color (MODIS)
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="accent-nasa-blue" checked={selectedLayers.firesNight} onChange={e => setSelectedLayers(s => ({ ...s, firesNight: e.target.checked }))} />
-                  Thermal Anomalies (VIIRS Night)
-                </label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input type="checkbox" className="accent-nasa-blue" checked={selectedLayers.airAerosol} onChange={e => setSelectedLayers(s => ({ ...s, airAerosol: e.target.checked }))} />
-                  Aerosol Optical Depth (MODIS)
-                </label>
-                <div className="ml-auto text-xs text-white/60">Date affects daily layers</div>
+        <main className="flex-1 p-2 md:p-4">
+          {/* Modern 2-Column Layout: Map + Panels */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 md:gap-4 items-start">
+            
+            {/* LEFT COLUMN: Map Section - Takes full width on mobile, 2/3 on desktop */}
+            <section className="lg:col-span-8 space-y-3 md:space-y-4">
+              {/* Map Container - Fixed height on mobile, flexible on desktop */}
+              <div className="lg:sticky lg:top-20 rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft shadow-glow overflow-hidden h-[50vh] md:h-[60vh] lg:h-[calc(100vh-6rem)] flex flex-col">
+                {/* Layer Controls - Compact on mobile */}
+                <div className="p-2 md:p-3 flex flex-wrap items-center gap-2 md:gap-4 border-b border-white/10 flex-shrink-0 bg-space-900/40">
+                  <div className="text-xs md:text-sm text-white/80 font-medium">🛰️ NASA GIBS</div>
+                  <label className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+                    <input type="checkbox" className="accent-nasa-blue w-3 h-3 md:w-4 md:h-4" checked={selectedLayers.trueColor} onChange={e => setSelectedLayers(s => ({ ...s, trueColor: e.target.checked }))} />
+                    <span className="hidden sm:inline">True Color</span>
+                    <span className="sm:hidden">Color</span>
+                  </label>
+                  <label className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+                    <input type="checkbox" className="accent-nasa-blue w-3 h-3 md:w-4 md:h-4" checked={selectedLayers.firesNight} onChange={e => setSelectedLayers(s => ({ ...s, firesNight: e.target.checked }))} />
+                    <span className="hidden sm:inline">Thermal</span>
+                    <span className="sm:hidden">🔥</span>
+                  </label>
+                  <label className="flex items-center gap-1 md:gap-2 text-xs md:text-sm">
+                    <input type="checkbox" className="accent-nasa-blue w-3 h-3 md:w-4 md:h-4" checked={selectedLayers.airAerosol} onChange={e => setSelectedLayers(s => ({ ...s, airAerosol: e.target.checked }))} />
+                    <span className="hidden sm:inline">Aerosol</span>
+                    <span className="sm:hidden">💨</span>
+                  </label>
+                </div>
+                {/* Map - Full height with proper flex */}
+                <div className="flex-1 min-h-0 relative">
+                  <NasaMap
+                    center={center}
+                    zoom={zoom}
+                    dateISO={dateISO}
+                    onMoved={onMapMoved}
+                    selectedLayers={selectedLayers}
+                  />
+                </div>
               </div>
-              <div className="flex-1 min-h-0">
-                <NasaMap
-                  center={center}
-                  zoom={zoom}
-                  dateISO={dateISO}
-                  onMoved={onMapMoved}
-                  selectedLayers={selectedLayers}
-                />
+
+              {/* Interactive Map Insights - Below the map, responsive cards */}
+              <div className="lg:block">
+                <ErrorBoundary fallbackMessage="Map insights temporarily unavailable.">
+                  <MapInsights
+                    weather={weatherData}
+                    cityName={cityName}
+                    location={center}
+                    disasters={disastersData}
+                  />
+                </ErrorBoundary>
               </div>
-            </div>
+            </section>
 
-            {/* Interactive Map Insights - Below the map */}
-            <ErrorBoundary fallbackMessage="Map insights temporarily unavailable.">
-              <MapInsights
-                weather={weatherData}
-                cityName={cityName}
-                location={center}
-                disasters={disastersData}
-              />
-            </ErrorBoundary>
-          </section>
-
-          {/* Sidebar */}
-          <aside className="space-y-4 xl:col-span-1">
+            {/* RIGHT COLUMN: Analytics Panels - Scrollable cards */}
+            <aside className="lg:col-span-4 space-y-3 md:space-y-4 lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto lg:pr-2 scroll-smooth">
             {showAI && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow max-h-[90vh] overflow-y-auto">
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300 max-h-[85vh] overflow-y-auto">
                 <ErrorBoundary fallbackMessage="AI analysis temporarily unavailable.">
                   <AICrisisPanel 
                     disasters={disastersData}
@@ -182,7 +203,7 @@ export default function App() {
               </div>
             )}
             {showResilience && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300">
                 <ErrorBoundary fallbackMessage="Resilience score temporarily unavailable.">
                   <ResiliencePanel 
                     weather={weatherData}
@@ -197,7 +218,7 @@ export default function App() {
               </div>
             )}
             {showScenarios && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow max-h-[80vh] overflow-y-auto">
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300 max-h-[80vh] overflow-y-auto">
                 <ErrorBoundary fallbackMessage="Scenario builder temporarily unavailable.">
                   <ScenarioBuilderPanel 
                     location={center}
@@ -207,7 +228,7 @@ export default function App() {
               </div>
             )}
             {showMobility && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft shadow-glow h-[68vh] overflow-hidden">
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg shadow-glow hover:shadow-xl transition-all duration-300 h-[65vh] overflow-hidden">
                 <ErrorBoundary fallbackMessage="Mobility data temporarily unavailable. Please try refreshing.">
                   <MobilityPanel 
                     location={center}
@@ -218,9 +239,16 @@ export default function App() {
               </div>
             )}
             {showWaterFlood && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
-                <h2 className="text-lg font-semibold mb-2">Water Resources & Flood Risk</h2>
-                <p className="text-xs text-white/70 mb-3">HyFuse scores, flood masks & alerts</p>
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+                    <span className="text-xl">💧</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">Water Resources & Flood Risk</h2>
+                    <p className="text-xs text-white/60">HyFuse scores, flood masks & alerts</p>
+                  </div>
+                </div>
                 <WaterFloodPanel 
                   bbox={bbox}
                   center={center}
@@ -232,25 +260,88 @@ export default function App() {
               </div>
             )}
             {showClimate && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
-                <h2 className="text-lg font-semibold mb-2">City Climate (NASA POWER)</h2>
-                <p className="text-xs text-white/70 mb-3">Monthly normals at map center</p>
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+                    <span className="text-xl">☀️</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">City Climate</h2>
+                    <p className="text-xs text-white/60">NASA POWER monthly normals</p>
+                  </div>
+                </div>
                 <ClimatePanel lat={center[0]} lon={center[1]} />
               </div>
             )}
             {showEvents && (
-              <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
-                <h2 className="text-lg font-semibold mb-2">Natural Events (NASA EONET)</h2>
-                <p className="text-xs text-white/70 mb-3">Open events in current map view</p>
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center">
+                    <span className="text-xl">🌋</span>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">Natural Events</h2>
+                    <p className="text-xs text-white/60">NASA EONET live tracking</p>
+                  </div>
+                </div>
                 <EventsPanel bbox={bbox} />
               </div>
             )}
-            <div className="rounded-xl border border-white/10 bg-space-800/60 backdrop-blur-soft p-4 shadow-glow">
-              <h2 className="text-lg font-semibold mb-2">About</h2>
-              <p className="text-sm text-white/80">
-                This demo overlays NASA Earth observation data to inform city planning and resilience.
-                Real-time weather, traffic, and disaster monitoring. NASA GIBS, EONET, POWER, and OpenWeatherMap used live.
+            {showInfrastructure && (
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg shadow-glow hover:shadow-xl transition-all duration-300 h-[65vh] overflow-hidden">
+                <ErrorBoundary fallbackMessage="Urban infrastructure data temporarily unavailable.">
+                  <UrbanInfrastructurePanel 
+                    location={center}
+                    bbox={bbox}
+                    cityName={cityName}
+                    visible={showInfrastructure}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
+            {showEnvironment && (
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg shadow-glow hover:shadow-xl transition-all duration-300 h-[65vh] overflow-hidden">
+                <ErrorBoundary fallbackMessage="Environmental health data temporarily unavailable.">
+                  <EnvironmentalHealthPanel 
+                    location={center}
+                    bbox={bbox}
+                    cityName={cityName}
+                    airQuality={airQualityData}
+                    visible={showEnvironment}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
+            {showEnergy && (
+              <div className="glass-card rounded-2xl border border-white/10 bg-space-800/60 backdrop-blur-lg shadow-glow hover:shadow-xl transition-all duration-300 h-[65vh] overflow-hidden">
+                <ErrorBoundary fallbackMessage="Energy & utilities data temporarily unavailable.">
+                  <EnergyUtilitiesPanel 
+                    location={center}
+                    bbox={bbox}
+                    cityName={cityName}
+                    visible={showEnergy}
+                  />
+                </ErrorBoundary>
+              </div>
+            )}
+            <div className="glass-card rounded-2xl border border-white/10 bg-gradient-to-br from-space-800/60 to-space-900/60 backdrop-blur-lg p-4 md:p-5 shadow-glow hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-500 flex items-center justify-center">
+                  <span className="text-xl">ℹ️</span>
+                </div>
+                <h2 className="text-lg font-semibold">About MetroScape</h2>
+              </div>
+              <p className="text-sm text-white/80 leading-relaxed">
+                Advanced urban planning platform powered by NASA Earth observation data. 
+                Features real-time weather, disaster monitoring, and comprehensive analytics 
+                for resilient city development.
               </p>
+              <div className="mt-3 pt-3 border-t border-white/10 flex flex-wrap gap-2 text-xs text-white/60">
+                <span className="px-2 py-1 bg-white/5 rounded-lg">NASA GIBS</span>
+                <span className="px-2 py-1 bg-white/5 rounded-lg">EONET</span>
+                <span className="px-2 py-1 bg-white/5 rounded-lg">POWER</span>
+                <span className="px-2 py-1 bg-white/5 rounded-lg">OpenWeather</span>
+              </div>
             </div>
           </aside>
           </div>

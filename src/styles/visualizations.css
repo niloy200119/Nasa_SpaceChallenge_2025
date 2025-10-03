@@ -1,0 +1,514 @@
+/* ========================================
+   MetroScape - Advanced Visualization Enhancements
+   ======================================== */
+
+/* Smooth transitions for all interactive elements */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+}
+
+/* Tab Navigation Animations */
+.tab-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-button::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tab-button.active::before {
+  transform: scaleX(1);
+}
+
+/* Metric Card Hover Effects */
+.metric-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.metric-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(59, 130, 246, 0.3);
+}
+
+/* Progress Bar Animations */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Progress Bar Fill with Gradient Animation */
+.progress-fill {
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-fill.red {
+  background: linear-gradient(90deg, #dc2626, #ef4444);
+}
+
+.progress-fill.yellow {
+  background: linear-gradient(90deg, #eab308, #fbbf24);
+}
+
+.progress-fill.green {
+  background: linear-gradient(90deg, #16a34a, #22c55e);
+}
+
+.progress-fill.blue {
+  background: linear-gradient(90deg, #2563eb, #3b82f6);
+}
+
+/* Heatmap Zone Pulse Animation */
+.heatmap-zone {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.heatmap-zone.critical {
+  animation: critical-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes critical-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7);
+  }
+  50% {
+    opacity: 0.9;
+    box-shadow: 0 0 0 10px rgba(220, 38, 38, 0);
+  }
+}
+
+/* Number Counter Animation */
+.count-up {
+  animation: count-fade-in 0.6s ease-out;
+}
+
+@keyframes count-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Tab Content Fade In */
+.tab-content {
+  animation: fade-slide-in 0.4s ease-out;
+}
+
+@keyframes fade-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Alert/Warning Badge Animations */
+.alert-badge {
+  animation: badge-bounce 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes badge-bounce {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Critical Alert Blink */
+.alert-critical {
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% {
+    opacity: 1;
+  }
+  25%, 75% {
+    opacity: 0.7;
+  }
+}
+
+/* Loading Skeleton Shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 25%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Glass Morphism Enhancement */
+.glass-card {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px 0 rgba(31, 38, 135, 0.37),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+}
+
+.glass-card:hover {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Data Point Indicator */
+.data-point {
+  position: relative;
+}
+
+.data-point::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  transform: translateY(-50%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Chart Bar Growth Animation */
+.chart-bar {
+  animation: bar-grow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    transform-origin: bottom;
+  }
+}
+
+/* Tooltip Fade In */
+.tooltip {
+  animation: tooltip-fade 0.2s ease-out;
+}
+
+@keyframes tooltip-fade {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Panel Slide In */
+.panel-enter {
+  animation: panel-slide-in 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes panel-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Gradient Text Animation */
+.gradient-text {
+  background: linear-gradient(
+    90deg,
+    #3b82f6,
+    #8b5cf6,
+    #ec4899,
+    #3b82f6
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 3s ease-in-out infinite;
+}
+
+@keyframes gradient-shift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Status Indicator Glow */
+.status-good {
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.status-moderate {
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+}
+
+.status-poor {
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.status-critical {
+  box-shadow: 0 0 15px rgba(220, 38, 38, 0.7);
+  animation: critical-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes critical-glow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(220, 38, 38, 1);
+  }
+}
+
+/* Scroll Fade Effect */
+.scroll-fade {
+  animation: scroll-reveal 0.6s ease-out;
+}
+
+@keyframes scroll-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Interactive List Item */
+.list-item {
+  transition: all 0.2s ease;
+}
+
+.list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  padding-left: 1rem;
+  border-left: 3px solid #3b82f6;
+}
+
+/* Number Badge */
+.number-badge {
+  display: inline-block;
+  min-width: 2rem;
+  padding: 0.25rem 0.5rem;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  border-radius: 9999px;
+  font-weight: 700;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Map Marker Bounce */
+.map-marker {
+  animation: marker-bounce 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes marker-bounce {
+  0% {
+    transform: translateY(-100px) scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(0) scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Coverage Zone Animation */
+.coverage-zone {
+  transition: all 0.3s ease;
+}
+
+.coverage-zone:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-left: 4px solid #3b82f6;
+  padding-left: 0.75rem;
+}
+
+/* Energy Source Bar */
+.energy-bar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.375rem;
+}
+
+.energy-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: energy-pulse 2s infinite;
+}
+
+@keyframes energy-pulse {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Pollution Heatmap Colors */
+.heatmap-good {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+}
+
+.heatmap-moderate {
+  background: linear-gradient(135deg, #fbbf24, #eab308);
+  color: #422006;
+}
+
+.heatmap-unhealthy {
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: white;
+}
+
+.heatmap-hazardous {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  animation: hazard-pulse 1s ease-in-out infinite;
+}
+
+@keyframes hazard-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+/* Focus Ring Enhancement */
+*:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+/* Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+  .glass-card {
+    background: rgba(15, 23, 42, 0.8);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
